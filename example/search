@@ -1,24 +1,24 @@
 # 헬스
-curl -s http://localhost:7070/entity/health \
+curl -s http://localhost:6060/entity/health \
     -H "Authorization: Bearer $TOKEN" | jq
 
 # 단건 조회
-curl -s "http://localhost:7070/product/1" \
+curl -s "http://localhost:6060/product/1" \
     -H "Authorization: Bearer $TOKEN" | jq
 
 # 단건 키/값 검색 + 페이징
-curl -s 'http://localhost:7070/entity/search?key=label&value=test&page=0&size=5' \
+curl -s 'http://localhost:6060/entity/search?key=label&value=test&page=0&size=5' \
     -H "Authorization: Bearer $TOKEN" | jq
 
 # 목록 조회
-curl -s "http://localhost:7070/product?page=0&size=10"  \
+curl -s "http://localhost:6060/product?page=0&size=10"  \
    -H "Authorization: Bearer $TOKEN"| jq
 
 # 필터 맵으로 검색 (POST)
-curl -s -X POST http://localhost:7070/entity \
+curl -s -X POST http://localhost:6060/entity \
   -H 'Content-Type: application/json' \
    -H "Authorization: Bearer $TOKEN"
   -d '{"filters":{"label":"test","team":"core"},"limit":10}' | jq
 
- curl -i "http://localhost:7070/product?page=0&size=5" \
+ curl -i "http://localhost:6060/product?page=0&size=5" \
    -H "Authorization: Bearer $TOKEN"
