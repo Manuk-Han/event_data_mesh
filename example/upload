@@ -1,0 +1,8 @@
+# 제품 생성 및 ID 추출
+PID=$(curl -s http://localhost:7070/product \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Nexus","description":"first product"}' -H "Authorization: Bearer $TOKEN" | jq -r .id)
+echo "PID=$PID"
+
+# test.png를 해당 제품에 업로드 (파일 필드명: file)
+curl -s -F "file=@test.png" "http://localhost:7070/product/$PID/file" -H "Authorization: Bearer $TOKEN" | jq

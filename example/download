@@ -1,0 +1,8 @@
+# (기본 TTL 600초) 프리사인드 다운로드 URL 발급
+curl -s "http://localhost:7070/product/$PID/file/url" -H "Authorization: Bearer $TOKEN" | jq
+
+# 실제 다운로드
+curl -L -o out.bin "$(curl -s "http://localhost:7070/product/$PID/file/url" -H "Authorization: Bearer $TOKEN" | jq -r .url)"
+
+# TTL 커스텀 (예: 120초)
+curl -s "http://localhost:7070/product/$PID/file/url?ttlSec=120" -H "Authorization: Bearer $TOKEN" | jq

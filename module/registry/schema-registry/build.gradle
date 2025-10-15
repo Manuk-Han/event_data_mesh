@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+dependencies {
+    implementation project(':module:contract:catalog-contract')
+
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'org.postgresql:postgresql:42.7.4'
+    runtimeOnly   'io.micrometer:micrometer-registry-prometheus'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+

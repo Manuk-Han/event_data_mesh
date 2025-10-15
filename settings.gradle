@@ -1,0 +1,18 @@
+rootProject.name = 'data_mesh'
+include 'module:domain:core'
+include 'module:domain:app'
+include 'module:domain:adapter-db'
+include 'module:domain:adapter-storage'
+
+include 'module:contract:catalog-contract'
+include 'module:contract:common-contract'
+
+include 'module:platform:security'
+include 'module:platform:auth'
+
+include 'module:common:catalog-client'
+
+include 'module:registry:schema-registry'
+
+include 'module:job:export-scheduler'
+

@@ -1,0 +1,13 @@
+plugins {
+	id 'java-library'
+}
+dependencies {
+	implementation project(':module:contract:catalog-contract')
+
+	implementation(platform("org.springframework.cloud:spring-cloud-dependencies:2024.0.2"))
+	api 'org.springframework.boot:spring-boot-starter'
+	api 'org.springframework.boot:spring-boot-starter-web'
+	api 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	compileOnly 'org.projectlombok:lombok:1.18.34'
+	annotationProcessor 'org.projectlombok:lombok:1.18.34'
+}

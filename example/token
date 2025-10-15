@@ -1,0 +1,18 @@
+TOKEN=$(curl -s -X POST 'http://localhost:7071/auth/token' \
+  -H 'Content-Type: application/json' \
+  -d '{"sub":"dev","roles":["CATALOG_READ","CATALOG_WRITE"]}' | jq -r .access_token)
+
+curl -s "http://localhost:7070/product?page=0&size=5" -H "Authorization: Bearer $TOKEN" | jq
+
+curl -s -X POST "http://localhost:7070/product" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Nexus","description":"first product"}' | jq
+
+curl -s -F "file=@test.png" \
+  "http://localhost:7070/product/$PID/product" \
+  -H "Authorization: Bearer $TOKEN" | jq
+
+# 다운로드 URL 발급
+curl -s "http://localhost:7070/product/$PID/product/url" \
+  -H "Authorization: Bearer $TOKEN" | jq

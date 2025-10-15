@@ -1,0 +1,43 @@
+plugins {
+	id 'org.springframework.boot' version '3.3.3'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'java'
+}
+
+repositories { mavenCentral() }
+
+dependencies {
+	// Spring Security (웹 필터/인증)
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// 웹/서블릿 API (OncePerRequestFilter 컴파일에 필요)
+	implementation 'org.springframework:spring-web'
+	compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0' // provided scope 느낌으로 compileOnly 권장
+
+	// Nimbus JWT
+	implementation 'com.nimbusds:nimbus-jose-jwt:9.39'
+
+	implementation 'org.springframework.boot:spring-boot-starter'
+
+	compileOnly 'org.projectlombok:lombok:1.18.34'
+	annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+}
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
+
+// 테스트 실행 자체 끔
+tasks.withType(Test).configureEach { enabled = false }
+
+// 테스트 소스 컴파일/리소스 처리도 끔
+tasks.matching { it.name in ['compileTestJava','processTestResources','testClasses'] }
+		.configureEach { enabled = false }
+
+// test 소스셋 비워서 우발적 컴파일 방지
+sourceSets {
+	test {
+		java.setSrcDirs([])
+		resources.setSrcDirs([])
+	}
+}

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleHome" value="" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/module" />
+            <option value="$PROJECT_DIR$/module/common" />
+            <option value="$PROJECT_DIR$/module/common/catalog-client" />
+            <option value="$PROJECT_DIR$/module/contract" />
+            <option value="$PROJECT_DIR$/module/contract/catalog-contract" />
+            <option value="$PROJECT_DIR$/module/contract/common-contract" />
+            <option value="$PROJECT_DIR$/module/domain" />
+            <option value="$PROJECT_DIR$/module/domain/adapter-db" />
+            <option value="$PROJECT_DIR$/module/domain/adapter-storage" />
+            <option value="$PROJECT_DIR$/module/domain/app" />
+            <option value="$PROJECT_DIR$/module/domain/core" />
+            <option value="$PROJECT_DIR$/module/job" />
+            <option value="$PROJECT_DIR$/module/job/export-scheduler" />
+            <option value="$PROJECT_DIR$/module/platform" />
+            <option value="$PROJECT_DIR$/module/platform/auth" />
+            <option value="$PROJECT_DIR$/module/platform/security" />
+            <option value="$PROJECT_DIR$/module/registry" />
+            <option value="$PROJECT_DIR$/module/registry/schema-registry" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/module/common/catalog-client" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/module/common/catalog-client" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/module/domain/app" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/module/domain/app" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/module/job/export-scheduler" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/module/job/export-scheduler" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/module/platform/auth" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/module/platform/auth" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/module/platform/security" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/module/platform/security" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/module/registry/schema-registry" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/module/registry/schema-registry" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><Key>1/test.png</Key><BucketName>product</BucketName><Resource>/product/1/test.png</Resource><RequestId>1868D071989D0B56</RequestId><HostId>dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8</HostId></Error>

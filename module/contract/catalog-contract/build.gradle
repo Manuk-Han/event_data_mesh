@@ -1,0 +1,20 @@
+plugins {
+    id "java"
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(21) }
+}
+
+repositories { mavenCentral() }
+
+dependencies {
+    implementation "com.fasterxml.jackson.core:jackson-annotations:2.17.2"
+    compileOnly "jakarta.validation:jakarta.validation-api:3.1.0"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.10.3"
+
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+}
+
+test { useJUnitPlatform() }

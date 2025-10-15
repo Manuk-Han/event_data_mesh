@@ -1,0 +1,114 @@
+name: deploy-ssh
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'module/**/src/main/resources/db/migration/*.sql'
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare dirs on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -euo pipefail
+            BASE="$HOME/data_mesh_deploy"
+            mkdir -p "$BASE/registry/db/migration" "$BASE/app/db/migration"
+            echo "BASE=$BASE" > $BASE/.deploy_env
+
+      - name: Copy registry migrations
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "module/registry/schema-registry/src/main/resources/db/migration/*.sql"
+          target: "/home/${{ secrets.SSH_USER }}/data_mesh_deploy/registry/db/migration"
+          overwrite: true
+
+      - name: Copy app migrations
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "module/domain/app/src/main/resources/db/migration/*.sql"
+          target: "/home/${{ secrets.SSH_USER }}/data_mesh_deploy/app/db/migration"
+          overwrite: true
+
+      - name: Flyway migrate on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -euo pipefail
+            source "$HOME/data_mesh_deploy/.deploy_env"
+            docker pull flyway/flyway:10.22 >/dev/null
+
+            if docker inspect mesh-postgres >/dev/null 2>&1; then
+              NET=$(docker inspect mesh-postgres --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}')
+            else
+              echo "'mesh-postgres' container not found."
+              docker ps --format 'table {{.Names}}\t{{.Networks}}'
+              exit 1
+            fi
+            if [ -z "$NET" ]; then
+              echo "compose network not found."
+              docker ps --format 'table {{.Names}}\t{{.Networks}}'
+              exit 1
+            fi
+            echo "using network: $NET"
+
+            echo "DNS/PORT check"
+            docker run --rm --network "$NET" busybox sh -c "getent hosts mesh-postgres || true"
+            docker run --rm --network "$NET" busybox sh -c "getent hosts mysql || true"
+            docker run --rm --network "$NET" busybox sh -c "nc -zv mesh-postgres 5432 || true"
+            docker run --rm --network "$NET" busybox sh -c "nc -zv mysql 3306 || true"
+
+            docker run --rm --network "$NET" -e PGPASSWORD='${{ secrets.PG_PASSWORD }}' postgres:16 \
+              psql -h mesh-postgres -U ${{ secrets.PG_USER }} -d "${{ secrets.PG_DB }}" -c '\conninfo' || true
+
+            echo "[Registry/Postgres] migrate"
+            docker run --rm --network "$NET" \
+              -v "$BASE/registry/db/migration:/flyway/sql:ro" \
+              flyway/flyway:10.22 \
+              -url="${{ secrets.PG_URL }}" \
+              -user="${{ secrets.PG_USER }}" \
+              -password="${{ secrets.PG_PASSWORD }}" \
+              -baselineOnMigrate=true -outOfOrder=false -connectRetries=30 migrate
+
+            echo "[App/MySQL] migrate"
+            docker run --rm --network "$NET" \
+              -v "$BASE/app/db/migration:/flyway/sql:ro" \
+              flyway/flyway:10.22 \
+              -url="${{ secrets.MYSQL_URL }}" \
+              -user="${{ secrets.MYSQL_USER }}" \
+              -password="${{ secrets.MYSQL_PASSWORD }}" \
+              -baselineOnMigrate=true -outOfOrder=false -connectRetries=30 migrate
+
+      - name: Smoke (health checks on server)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -euo pipefail
+            curl -sf "${{ secrets.APP_HEALTH }}" | jq -r .status | grep -q UP
+            curl -sf "${{ secrets.REG_HEALTH }}" | jq -r .status | grep -q UP
+            echo "All health checks passed."

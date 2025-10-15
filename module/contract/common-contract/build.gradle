@@ -1,0 +1,16 @@
+plugins { id 'java' }
+
+group = 'module.contract'
+version = '0.1.0'
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
+
+repositories { mavenCentral() }
+
+dependencies {
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+}
+

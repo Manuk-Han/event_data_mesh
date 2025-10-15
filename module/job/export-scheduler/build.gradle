@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+dependencies {
+    implementation(project(":module:domain:core"))
+    implementation project(':module:domain:adapter-db')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    implementation 'io.minio:minio:8.5.10'
+    implementation 'com.opencsv:opencsv:5.9'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // ConfigurationProperties 메타데이터 생성기 (IDE 지원)
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:3.3.3"
+
+    // AWS SDK v2 (BOM이 버전 관리)
+//    implementation "software.amazon.awssdk:s3"
+//    implementation "software.amazon.awssdk:s3-transfer-manager"
+//    implementation "software.amazon.awssdk:auth"
+//    implementation "software.amazon.awssdk:url-connection-client"
+}
