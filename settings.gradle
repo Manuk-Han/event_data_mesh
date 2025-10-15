@@ -1,4 +1,4 @@
-rootProject.name = 'data_mesh'
+rootProject.name = 'event_data_mesh'
 include 'module:domain:core'
 include 'module:domain:app'
 include 'module:domain:adapter-db'
