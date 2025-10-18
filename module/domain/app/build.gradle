@@ -45,6 +45,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     implementation 'com.networknt:json-schema-validator:1.5.2'
+
+    implementation 'org.springframework.kafka:spring-kafka'
 }
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }

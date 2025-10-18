@@ -26,10 +26,13 @@ public class SecurityConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtTokenService svc) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtTokenService svc, JwtAuthFilter jwtAuthFilter) throws Exception {
         http.csrf(csrf -> csrf.disable());
         http.sessionManagement(sm -> sm.sessionCreationPolicy(
                 org.springframework.security.config.http.SessionCreationPolicy.STATELESS));
+
+        http.addFilterBefore(jwtAuthFilter,
+                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         http.addFilterBefore(new JwtAuthFilter(svc),
                 org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
@@ -43,6 +46,9 @@ public class SecurityConfig {
                 ).permitAll()
                 .requestMatchers("/product/**").authenticated()
                 .requestMatchers("/entity/**").authenticated()
+
+                .requestMatchers("/member/**").permitAll()
+
                 .anyRequest().denyAll()
         );
         return http.build();

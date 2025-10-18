@@ -1,5 +1,6 @@
 package module.domain.app.config;
 
+import module.domain.app.exception.DuplicateEmailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.validation.BindException;
@@ -20,6 +21,11 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail badRequest(MethodArgumentNotValidException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "validation failed");
+    }
+
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ProblemDetail handleDuplicate(DuplicateEmailException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
