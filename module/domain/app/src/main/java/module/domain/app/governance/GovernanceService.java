@@ -2,9 +2,11 @@ package module.domain.app.governance;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -13,16 +15,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GovernanceService {
     private final JdbcTemplate jdbc;
-    private final ObjectMapper om = new ObjectMapper();
+    private final ObjectMapper om; // 스프링 빈 주입
 
     public record Policy(String name, String ruleType, String ruleConfig) {}
 
+    @Transactional(readOnly = true)
     public List<Policy> loadPoliciesForDataset(String datasetName) {
         String sql = """
-            select p.name, p.rule_type, p.rule_config
-            from policy_binding b
-            join governance_policy p on p.name = b.policy_name
-            where b.dataset_name = ?
+            SELECT p.name, p.rule_type, p.rule_config
+              FROM policy_binding b
+              JOIN governance_policy p ON p.name = b.policy_name
+             WHERE b.dataset_name = ?
         """;
         return jdbc.query(sql, (rs, i) -> new Policy(
                 rs.getString("name"),
@@ -31,16 +34,18 @@ public class GovernanceService {
         ), datasetName);
     }
 
-    public JsonNode applyMasking(JsonNode node, String field, String strategy) {
-        if (!node.has(field) || node.get(field).isNull()) return node;
+    private JsonNode applyMasking(JsonNode node, String field, String strategy) {
+        if (!(node instanceof ObjectNode obj)) return node;
+        if (!obj.hasNonNull(field)) return node;
         if (!"EMAIL_LOCAL_PART".equals(strategy)) return node;
 
-        String email = node.get(field).asText();
+        String email = obj.get(field).asText();
         int at = email.indexOf('@');
         if (at <= 1) return node;
+
         String masked = email.charAt(0) + "****" + email.substring(at);
-        ((com.fasterxml.jackson.databind.node.ObjectNode) node).put(field, masked);
-        return node;
+        obj.put(field, masked);
+        return obj;
     }
 
     public JsonNode applyPolicies(String dataset, JsonNode payload) {
@@ -49,11 +54,16 @@ public class GovernanceService {
         for (var p : policies) {
             if ("MASK".equalsIgnoreCase(p.ruleType())) {
                 try {
-                    var cfg = om.readValue(p.ruleConfig(), Map.class);
-                    current = applyMasking(current, (String) cfg.get("field"), (String) cfg.get("strategy"));
-                } catch (Exception ignore) {}
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> cfg = om.readValue(p.ruleConfig(), Map.class);
+                    current = applyMasking(current,
+                            (String) cfg.get("field"),
+                            (String) cfg.get("strategy"));
+                } catch (Exception ignore) {
+                    // 정책 파싱 실패 → 무시하고 다음 정책 진행
+                }
             }
-            // 필요시 VALIDATE, PII_BLOCK 등 확대
+            // TODO: VALIDATE, PII_BLOCK 등 정책 타입 확장 시 여기 추가
         }
         return current;
     }
