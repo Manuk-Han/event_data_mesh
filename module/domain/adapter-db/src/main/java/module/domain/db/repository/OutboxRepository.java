@@ -19,4 +19,7 @@ public interface OutboxRepository extends JpaRepository<Outbox, Long> {
       """,
             nativeQuery = true)
     List<Outbox> findBatch(Pageable pageable);
+
+    long countByPublishedFalse();
+
 }
