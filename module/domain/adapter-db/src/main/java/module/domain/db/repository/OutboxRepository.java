@@ -9,10 +9,14 @@ import java.util.List;
 
 @Repository
 public interface OutboxRepository extends JpaRepository<Outbox, Long> {
-    @Query("""
-              select o from Outbox o
-              where o.published = false
-              order by o.createdAt asc
-            """)
+    @Query(
+            value = """
+        SELECT * FROM event_outbox
+        WHERE published = false
+        ORDER BY created_at
+        LIMIT :#{#pageable.pageSize}
+        FOR UPDATE SKIP LOCKED
+      """,
+            nativeQuery = true)
     List<Outbox> findBatch(Pageable pageable);
 }
