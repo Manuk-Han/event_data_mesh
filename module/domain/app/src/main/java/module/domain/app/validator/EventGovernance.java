@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
+import module.domain.app.governance.QuarantinedEventException;
 import module.domain.db.repository.QuarantineRepository;
 import module.domain.db.repository.SchemaRegistryRepository;
 import org.springframework.stereotype.Component;
@@ -30,7 +31,7 @@ public class EventGovernance {
             for (String f : required) {
                 if (!p.hasNonNull(f) || p.get(f).asText().isBlank()) {
                     quarantineRepo.insert(dataset, payloadJson, "REQUIRED_FIELD_MISSING", OffsetDateTime.now());
-                    throw new IllegalStateException("required field missing: " + f);
+                    throw new QuarantinedEventException("required field missing: " + f);
                 }
             }
 
@@ -49,7 +50,7 @@ public class EventGovernance {
             throw rethrow;
         } catch (Exception e) {
             quarantineRepo.insert(dataset, payloadJson, "INVALID_JSON", OffsetDateTime.now());
-            throw new IllegalStateException("invalid json", e);
+            throw new QuarantinedEventException("invalid json: " + e);
         }
     }
 }

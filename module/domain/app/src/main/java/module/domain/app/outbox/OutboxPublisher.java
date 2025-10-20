@@ -1,12 +1,12 @@
 package module.domain.app.outbox;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import module.domain.app.governance.GovernanceService;
+import module.domain.app.governance.QuarantinedEventException;
 import module.domain.app.governance.QuarantineService;
 import module.domain.app.validator.EventGovernance;
 import module.domain.db.entity.EventJournal;
@@ -35,10 +35,10 @@ public class OutboxPublisher {
     private final EventJournalRepository journalRepo;
     private final GovernanceService governance;
     private final QuarantineService quarantine;
-
     private final EventGovernance eventGovernance;
     private final ObjectMapper om;
 
+    // Micrometer counters
     private final Counter publishSuccess;
     private final Counter publishFailure;
     private final Counter quarantined;
@@ -58,6 +58,7 @@ public class OutboxPublisher {
         this.quarantine = quarantine;
         this.eventGovernance = eventGovernance;
         this.om = om;
+
         this.publishSuccess = Counter.builder("outbox_publish_success_total").register(meter);
         this.publishFailure = Counter.builder("outbox_publish_failure_total").register(meter);
         this.quarantined    = Counter.builder("outbox_quarantine_total").register(meter);
@@ -73,7 +74,6 @@ public class OutboxPublisher {
 
         for (Outbox o : batch) {
             try {
-                // 0) JSON 파싱
                 JsonNode payloadNode = om.readTree(o.getPayload());
                 JsonNode headersNode = (o.getHeaders() != null) ? om.readTree(o.getHeaders()) : null;
 
@@ -87,26 +87,13 @@ public class OutboxPublisher {
                         ? headersNode.get("correlationId").asText()
                         : null;
 
-                // 1) 스키마/필수필드 검증 (원본 JSON 기준)
-                eventGovernance.validateOrQuarantine(dataset, schemaVersion, o.getPayload()); // <- 오타 수정
+                eventGovernance.validateOrQuarantine(dataset, schemaVersion, o.getPayload());
 
-                // (추가 방어: 필수 필드 빠짐 → 격리 후 스킵)
-                if (governance.violatesRequired(payloadNode, "memberId", "email", "name")) {
-                    quarantine.save(dataset, payloadNode.toString(), "REQUIRED_FIELD_MISSING");
-                    o.setPublished(true); // 무한 재시도 방지
-                    toSave.add(o);
-                    quarantined.increment();
-                    continue;
-                }
-
-                // 2) 정책 적용(마스킹 등) → 전송에 쓰는 최종 페이로드
                 JsonNode masked = governance.applyPolicies(dataset, payloadNode);
 
-                // 3) Kafka 전송
                 var sendResult = kafka.send(MEMBER_TOPIC, o.getAggregateId(), masked.toString())
                         .get(3, TimeUnit.SECONDS);
 
-                // 4) 성공 처리 & 저널 기록
                 o.setPublished(true);
                 toSave.add(o);
 
@@ -125,6 +112,12 @@ public class OutboxPublisher {
 
                 publishSuccess.increment();
 
+            } catch (QuarantinedEventException qe) {
+                o.setPublished(true);
+                toSave.add(o);
+                quarantined.increment();
+                log.warn("Outbox quarantined id={}, reason={}", o.getId(), qe.getReason());
+
             } catch (Exception ex) {
                 log.warn("Outbox publish failed id={}, reason={}", o.getId(), ex.toString());
                 publishFailure.increment();
@@ -135,5 +128,4 @@ public class OutboxPublisher {
             repo.saveAll(toSave);
         }
     }
-
 }
