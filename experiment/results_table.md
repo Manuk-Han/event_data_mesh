@@ -1,0 +1,9 @@
+| Metric | PURE Δ | EDA-NORMAL Δ | EDA-QUARANTINE Δ |
+|---|---:|---:|---:|
+| member_consume_failure_total | 0 | 0 | 0 |
+| member_consume_success_total | 0 | 0 | 0 |
+| metric | delta | delta | delta |
+| outbox_publish_failure_total | 0 | 0 | 0 |
+| outbox_publish_success_total | 0 | 0 | 0 |
+
+**Recovery Time (sec)**: 24

@@ -1,0 +1,11 @@
+# HELP jvm_memory_used_bytes The amount of used memory
+# TYPE jvm_memory_used_bytes gauge
+jvm_memory_used_bytes{area="heap",id="G1 Eden Space"} 0.0
+jvm_memory_used_bytes{area="heap",id="G1 Old Gen"} 2.6709488E7
+jvm_memory_used_bytes{area="heap",id="G1 Survivor Space"} 1722736.0
+jvm_memory_used_bytes{area="nonheap",id="CodeCache"} 1.2018048E7
+jvm_memory_used_bytes{area="nonheap",id="Compressed Class Space"} 1.0108264E7
+jvm_memory_used_bytes{area="nonheap",id="Metaspace"} 6.9109704E7
+# HELP process_cpu_usage The "recent cpu usage" for the Java Virtual Machine process
+# TYPE process_cpu_usage gauge
+process_cpu_usage 4.108013364736813E-5

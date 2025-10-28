@@ -1,0 +1,5 @@
+file,description
+delta_pure.csv, PURE 정상부하 전후 메트릭 변화(7070/7071/7072 합산)
+delta_eda_normal.csv, EDA 정상부하 전후 메트릭 변화(6060/6061/6062 합산)
+delta_eda_quarantine.csv, EDA 스키마오류 전후 변화(합산)
+recovery_time_eda.csv, EDA 장애 주입 후 backlog 0까지 복구시간

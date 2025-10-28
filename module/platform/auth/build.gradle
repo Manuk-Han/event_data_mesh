@@ -18,5 +18,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 }
 java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }

@@ -1,0 +1,12 @@
+process_cpu_usage 0.00710185
+member_consume_failure_total 0
+jvm_memory_used_bytes{area="nonheap",id="Compressed 0
+member_consume_success_total 4
+member_consume_dlt_total 0
+jvm_memory_used_bytes{area="heap",id="G1 0
+jvm_memory_used_bytes{area="nonheap",id="Metaspace"} 219444296
+jvm_memory_used_bytes{area="nonheap",id="CodeCache"} 42440960
+outbox_publish_failure_total 0
+outbox_publish_success_total 2
+# 0
+outbox_backlog 0

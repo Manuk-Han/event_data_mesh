@@ -1,0 +1,6 @@
+process_cpu_usage 4.41704e-05
+jvm_memory_used_bytes{area="nonheap",id="Compressed 0
+jvm_memory_used_bytes{area="heap",id="G1 0
+jvm_memory_used_bytes{area="nonheap",id="Metaspace"} 200164264
+jvm_memory_used_bytes{area="nonheap",id="CodeCache"} 30992640
+# 0
